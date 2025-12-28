@@ -1,9 +1,9 @@
 #define MyClass_cxx
 
-#include "include/MyTrimMC.h"
-#include "include/coordinateTools.h"
+#include "../include/MyTrimMC.h"
+#include "../include/coordinateTools.h"
 //#include "include/high_vn.h"
-#include "include/mc_constants.h"
+#include "../include/mc_constants.h"
 
 #include <iostream>
 #include <iomanip>
@@ -73,6 +73,8 @@ bool isSubstring(string s1, string s2)
 
 
 void MyClass::Loop(int job, std::string fList){
+
+    gRandom->SetSeed(0);
 
     TH1::SetDefaultSumw2(kTRUE);
     TH2::SetDefaultSumw2(kTRUE);
@@ -177,7 +179,7 @@ void MyClass::Loop(int job, std::string fList){
             for(int ijet=0; ijet < jetCounter; ijet++){
                 
                 long int NNtrk = (genDau_pt->at(ijet)).size();
-                gRandom->SetSeed(0);
+                // gRandom->SetSeed(0);
                 double eta_smear;
                 eta_smear=0;
                 if( fabs(((*genJetEta)[ijet])+eta_smear) > jetEtaCut ) continue;
@@ -273,7 +275,7 @@ void MyClass::Loop(int job, std::string fList){
                     if(fabs((*genDau_eta)[ijet][A_trk]) > 2.4) continue;
                     //if((*highPurity)[ijet][A_trk] == 0) continue;
 
-                    gRandom->SetSeed(0);
+                    // gRandom->SetSeed(0);
                     //smear on jet phi but in the jet daughter loop?? Anyway, it is set to zero for now.
                     double phi_smear;
                     phi_smear=0;
@@ -372,7 +374,7 @@ void MyClass::Loop(int job, std::string fList){
                 float A_ETA_Cor[XENT] = {0};
                 float A_PHI_Cor[XENT] = {0};
                 for(int x = 0; x<XENT; x++){
-                    gRandom->SetSeed(0);
+                    // gRandom->SetSeed(0);
                     
                     double WEta1_Cor, WPhi1_Cor;//making the pseudoparticles
                     hEPDrawCor[wtrk-1][wppt-1][wpPU-1]->GetRandom2(WEta1_Cor, WPhi1_Cor);
@@ -399,7 +401,7 @@ void MyClass::Loop(int job, std::string fList){
     }
 
     string subList = fList.substr(fList.size() - 3);
-    TFile* fS_tempA = new TFile(Form("/eos/cms/store/group/phys_heavyions/xiaoyul/MC/13TeV/pythia8/basicAna/job_%s.root",subList.c_str()), "recreate");
+    TFile* fS_tempA = new TFile(Form("/eos/cms/store/group/phys_heavyions/huangxi/ampt_flow/24mb_nch60_pt500/job_%s.root",subList.c_str()), "recreate");
     for(int wtrk =1; wtrk <trackbin+1; wtrk++){
         hBinDist_cor[wtrk-1]->Write();
         h_jet_cor_jT[wtrk-1]->Write();
