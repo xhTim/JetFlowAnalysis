@@ -28,6 +28,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TCutG.h"
+#include "TVector2.h"
 #include "TRandom3.h"
 
 using TMath::ATan;
@@ -175,6 +176,26 @@ void MyClass::Loop(int job, std::string fList){
             int jetCounter = genJetPt->size();
             if(jetCounter == 0) continue;
 
+            vector<int> npartons(jetCounter, 0);
+
+            for (int ipar = 0; ipar < par_px->size(); ipar++) 
+            {
+                double px = (*par_px)[ipar];
+                double py = (*par_py)[ipar];
+                double pz = (*par_pz)[ipar];
+                double eta = -log(tan(atan2(sqrt(px*px + py*py), pz)/2));
+                double phi = atan2(py, px);
+                for (int ijet = 0; ijet < jetCounter; ijet++) 
+                {
+                    double dR = std::hypot(eta - (*genJetEta)[ijet], TVector2::Phi_mpi_pi(phi - (*genJetPhi)[ijet]));
+                    if (dR < 0.8) 
+                    {
+                        npartons[ijet]++;
+                        break;
+                    }
+                }
+            }
+
             //=================ENTERING JET LOOP==================
             for(int ijet=0; ijet < jetCounter; ijet++){
                 
@@ -201,6 +222,8 @@ void MyClass::Loop(int job, std::string fList){
                     double nUnc_weight = 1.0;//(hReco2D[thisEffTable]->GetBinContent(hReco2D[thisEffTable]->FindBin( (*dau_pt)[ijet][A_trk] , (*dau_eta)[ijet][A_trk] )));
                     n_ChargeMult_DCA_labPt_Eta_exclusion_Cor += (1.0/nUnc_weight);
                 }
+
+                if (npartons[ijet] < 0.49 * n_ChargeMult_DCA_labPt_Eta_exclusion_Cor - 21) continue;
 
                 h_lab_cor_JetMult_pT->Fill((*genJetPt)[ijet],n_ChargeMult_DCA_labPt_Eta_exclusion_Cor);
                 h_lab_cor_JetMult_phi->Fill((*genJetPhi)[ijet],n_ChargeMult_DCA_labPt_Eta_exclusion_Cor);

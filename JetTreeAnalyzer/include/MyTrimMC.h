@@ -70,6 +70,10 @@ public :
    vector<vector<float> > *genDau_eta;
    vector<vector<float> > *genDau_phi;
 
+   vector<float> *par_px;
+   vector<float> *par_py;
+   vector<float> *par_pz;
+
    // List of branches
    /*
    TBranch        *b_nRun;   //!
@@ -111,6 +115,9 @@ public :
    TBranch        *b_genDau_pt;   //!
    TBranch        *b_genDau_eta;   //!
    TBranch        *b_genDau_phi;   //!
+   TBranch        *b_par_px;   //!
+   TBranch        *b_par_py;   //!
+   TBranch        *b_par_pz;   //!
 
 
    //MyClass(TTree *tree=0);
@@ -217,6 +224,9 @@ void MyClass::Init(TTree *tree)
    genDau_pt = 0;
    genDau_eta = 0;
    genDau_phi = 0;
+   par_px = 0;
+   par_py = 0;
+   par_pz = 0;
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
@@ -264,6 +274,9 @@ void MyClass::Init(TTree *tree)
    fChain->SetBranchAddress("genDau_pt", &genDau_pt, &b_genDau_pt);
    fChain->SetBranchAddress("genDau_eta", &genDau_eta, &b_genDau_eta);
    fChain->SetBranchAddress("genDau_phi", &genDau_phi, &b_genDau_phi);
+   fChain->SetBranchAddress("par_px", &par_px, &b_par_px);
+   fChain->SetBranchAddress("par_py", &par_py, &b_par_py);
+   fChain->SetBranchAddress("par_pz", &par_pz, &b_par_pz);
    Notify();
 }
 
