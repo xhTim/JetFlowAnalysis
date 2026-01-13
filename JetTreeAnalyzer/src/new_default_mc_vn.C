@@ -147,19 +147,19 @@ void MyClass::Loop(int job, std::string fList){
     }
 
 
-    std::cout << "Starting event loop" << std::endl;
-    std::cout << "Total Number of Files in this Job: " << fileList.size() << std::endl;
+    // std::cout << "Starting event loop" << std::endl;
+    // std::cout << "Total Number of Files in this Job: " << fileList.size() << std::endl;
     for(int f = 0; f<fileList.size(); f++){
         int f_from_file = f;
         fFile = TFile::Open(fileList.at(f).c_str(),"read");
         TTree *tree = (TTree*)fFile->Get("trackTree");
         Init(tree);
 
-        std::cout << "File " << f+1 << " out of " << fileList.size() << std::endl;
+        // std::cout << "File " << f+1 << " out of " << fileList.size() << std::endl;
         Long64_t nbytes = 0, nb = 0;
         Long64_t nentries = fChain->GetEntriesFast();
-        cout<<"Total Entries is:"<<endl;
-        cout<< nentries <<endl;
+        // cout<<"Total Entries is:"<<endl;
+        // cout<< nentries <<endl;
 
         
         // ENTERING EVENT LOOP
@@ -213,17 +213,32 @@ void MyClass::Loop(int job, std::string fList){
                 int tkBool[trackbin] = {0};
 
                 double n_ChargeMult_DCA_labPt_Eta_exclusion_Cor =0;
+                int n_hyperon = 0, n_other = 0;
 
                 for(int  A_trk=0; A_trk < NNtrk; A_trk++ ){
                     if((*genDau_chg)[ijet][A_trk] == 0) continue;//charge
                     if(fabs((*genDau_pt)[ijet][A_trk])  < 0.3)     continue;//lab pt
                     if(fabs((*genDau_eta)[ijet][A_trk]) > 2.4)     continue;//lab eta
-
+                    int pid = (*genDau_pid)[ijet][A_trk];
+                    if (!(abs(pid)==211 || abs(pid) == 321 || abs(pid) == 2212)) 
+                    {
+                        if (abs(pid) >= 3000 && abs(pid) <= 3999) n_hyperon++;
+                        else 
+                        {
+                            n_other++;
+                            cout << "Other PID: " << pid << endl;
+                        }
+                        continue;
+                    }
+                    
                     double nUnc_weight = 1.0;//(hReco2D[thisEffTable]->GetBinContent(hReco2D[thisEffTable]->FindBin( (*dau_pt)[ijet][A_trk] , (*dau_eta)[ijet][A_trk] )));
                     n_ChargeMult_DCA_labPt_Eta_exclusion_Cor += (1.0/nUnc_weight);
                 }
+                // cout << "hyperon ratio: " << n_hyperon / n_ChargeMult_DCA_labPt_Eta_exclusion_Cor << " hyperon: " <<n_hyperon << " total: " << n_ChargeMult_DCA_labPt_Eta_exclusion_Cor << endl;
+                if (n_other > 0) cout << "other: " << n_other << endl;
+                cout << endl;
 
-                if (npartons[ijet] < 0.49 * n_ChargeMult_DCA_labPt_Eta_exclusion_Cor - 21) continue;
+                // if (npartons[ijet] < 0.49 * n_ChargeMult_DCA_labPt_Eta_exclusion_Cor - 21) continue;
 
                 h_lab_cor_JetMult_pT->Fill((*genJetPt)[ijet],n_ChargeMult_DCA_labPt_Eta_exclusion_Cor);
                 h_lab_cor_JetMult_phi->Fill((*genJetPhi)[ijet],n_ChargeMult_DCA_labPt_Eta_exclusion_Cor);
@@ -252,6 +267,8 @@ void MyClass::Loop(int job, std::string fList){
                     if((*genDau_chg)[ijet][A_trk] == 0) continue;
                     if((*genDau_pt)[ijet][A_trk] < 0.3) continue;
                     if(fabs((*genDau_eta)[ijet][A_trk]) > 2.4) continue;
+                    int pid = (*genDau_pid)[ijet][A_trk];
+                    if (!(abs(pid)==211 || abs(pid) == 321 || abs(pid) == 2212)) continue;
 
                     double jet_dau_pt = ptWRTJet((double)(*genJetPt)[ijet], (double)(*genJetEta)[ijet], (double)(*genJetPhi)[ijet], (double)(*genDau_pt)[ijet][A_trk], (double)(*genDau_eta)[ijet][A_trk], (double)(*genDau_phi)[ijet][A_trk]);
                     double jet_dau_eta   = etaWRTJet((double)(*genJetPt)[ijet], (double)(*genJetEta)[ijet] +eta_smear    , (double)(*genJetPhi)[ijet]  , (double)(*genDau_pt)[ijet][A_trk], (double)(*genDau_eta)[ijet][A_trk], (double)(*genDau_phi)[ijet][A_trk]);
@@ -297,6 +314,8 @@ void MyClass::Loop(int job, std::string fList){
                     if((*genDau_pt)[ijet][A_trk] < 0.3) continue;
                     if(fabs((*genDau_eta)[ijet][A_trk]) > 2.4) continue;
                     //if((*highPurity)[ijet][A_trk] == 0) continue;
+                    int pid = (*genDau_pid)[ijet][A_trk];
+                    if (!(abs(pid)==211 || abs(pid) == 321 || abs(pid) == 2212)) continue;
 
                     // gRandom->SetSeed(0);
                     //smear on jet phi but in the jet daughter loop?? Anyway, it is set to zero for now.
@@ -331,6 +350,8 @@ void MyClass::Loop(int job, std::string fList){
                         if((*genDau_chg)[ijet][T_trk] == 0) continue;
                         if((*genDau_pt)[ijet][T_trk] < 0.3) continue;
                         if(fabs((*genDau_eta)[ijet][T_trk]) > 2.4) continue;
+                        int pid = (*genDau_pid)[ijet][T_trk];
+                        if (!(abs(pid)==211 || abs(pid) == 321 || abs(pid) == 2212)) continue;
 
                         double T_jet_dau_pt    =  ptWRTJet((double)(*genJetPt)[ijet], (double)(*genJetEta)[ijet] +eta_smear    , (double)(*genJetPhi)[ijet] +phi_smear      , (double)(*genDau_pt)[ijet][T_trk], (double)(*genDau_eta)[ijet][T_trk], (double)(*genDau_phi)[ijet][T_trk]);
                         double T_jet_dau_eta   = etaWRTJet((double)(*genJetPt)[ijet], (double)(*genJetEta)[ijet] +eta_smear    , (double)(*genJetPhi)[ijet] +phi_smear      , (double)(*genDau_pt)[ijet][T_trk], (double)(*genDau_eta)[ijet][T_trk], (double)(*genDau_phi)[ijet][T_trk]);
@@ -382,11 +403,11 @@ void MyClass::Loop(int job, std::string fList){
 
     int backMult =10;
     for(int wtrk = 1; wtrk < trackbin+1; wtrk++){
-        std::cout << wtrk << "/" << trackbin << std::endl;
+        // std::cout << wtrk << "/" << trackbin << std::endl;
         for(int wppt = 1; wppt < ptbin+1; wppt++){ 
-            std::cout << wppt << "/" << ptbin << std::endl;
+            // std::cout << wppt << "/" << ptbin << std::endl;
             for(int wpPU = 1; wpPU < PUbin+1; wpPU++){
-                std::cout << wpPU << "/" << PUbin << std::endl;
+                // std::cout << wpPU << "/" << PUbin << std::endl;
                 //Nent is the number of pairs in the signal which we will try to 10x
                 //Xent is the number of pseudoparticles requried such that when we build the pairs nCp = Xent CHOOSE 2 will give 
                 //us 10 times as many pairs as we have in the signal histogrm.
@@ -424,7 +445,7 @@ void MyClass::Loop(int job, std::string fList){
     }
 
     string subList = fList.substr(fList.size() - 3);
-    TFile* fS_tempA = new TFile(Form("/eos/cms/store/group/phys_heavyions/huangxi/ampt_flow/24mb_nch60_pt500/job_%s.root",subList.c_str()), "recreate");
+    TFile* fS_tempA = new TFile(Form("/eos/cms/store/group/phys_heavyions/huangxi/ampt_flow/3mb_nch60_pt500/job_%s.root",subList.c_str()), "recreate");
     for(int wtrk =1; wtrk <trackbin+1; wtrk++){
         hBinDist_cor[wtrk-1]->Write();
         h_jet_cor_jT[wtrk-1]->Write();
