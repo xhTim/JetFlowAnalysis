@@ -246,7 +246,8 @@ void MyClass::Loop(int job, std::string fList){
                 
                 hBinDist_cor_single            ->Fill(n_ChargeMult_DCA_labPt_Eta_exclusion_Cor, 1.0*jet_HLT_weight);
                 for(int i = 0; i < trackbin; i++){
-                    if( n_ChargeMult_DCA_labPt_Eta_exclusion_Cor >= trackbinbounds[i] && n_ChargeMult_DCA_labPt_Eta_exclusion_Cor < trackbinboundsUpper[i]){
+                    // > and <= should be replaced with >= and < in the future.
+                    if( n_ChargeMult_DCA_labPt_Eta_exclusion_Cor > trackbinbounds[i] && n_ChargeMult_DCA_labPt_Eta_exclusion_Cor <= trackbinboundsUpper[i]){
                         tkBool[i] = 1;
                         hJet_Pass                   ->Fill(i);
                         if((*genJetPt)[ijet] >= jetPtCut_Event) hJet_Pass550                           ->Fill(i);
