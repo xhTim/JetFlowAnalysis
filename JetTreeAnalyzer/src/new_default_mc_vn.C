@@ -130,6 +130,9 @@ void MyClass::Loop(int job, std::string fList){
     //For recording Nch dis. and calculating <Nch> per Nch bin.
     TH1D* hBinDist_cor[trackbin];
 
+    const int nDEtaBins = 200;
+    const double dEtaMin = -10.0;
+    const double dEtaMax =  10.0;
     for(int wtrk = 1; wtrk<trackbin+1; wtrk++){
         hBinDist_cor[wtrk-1]    = new TH1D(Form("hBinDist_cor_%d",wtrk),Form("hBinDist_cor_%d",wtrk), 600, 0, 200);
         
@@ -139,8 +142,12 @@ void MyClass::Loop(int job, std::string fList){
         h_jet_cor_jT_etastar[wtrk-1]=new TH2D(Form("jet_cor_jT_etastar_%d",wtrk),Form("jet_cor_jT_etastar_%d",wtrk),100,0,10,200,0,20);
         for(int wppt = 1; wppt<ptbin+1; wppt++){
             for(int wpPU = 1; wpPU<PUbin+1; wpPU++){
-                hBckrndShiftedCor[wtrk-1][wppt-1][wpPU-1]   = new TH2D(Form("hBckrndS_Cor_trk_%d_ppt_%d_PU_%d",wtrk,wppt,wpPU) ,Form("hBckrndS_trk_%d_ppt_%d_PU_%d",wtrk,wppt,wpPU) ,41,-(20*EtaBW)-(0.5*EtaBW),(20*EtaBW)+(0.5*EtaBW),33,-(8*PhiBW)-0.5*PhiBW,(24*PhiBW)+0.5*PhiBW);
-                hSignalShiftedCor[wtrk-1][wppt-1][wpPU-1]   = new TH2D(Form("hSignalS_Cor_trk_%d_ppt_%d_PU_%d",wtrk,wppt,wpPU) ,Form("hSignalS_trk_%d_ppt_%d_PU_%d",wtrk,wppt,wpPU) ,41,-(20*EtaBW)-(0.5*EtaBW),(20*EtaBW)+(0.5*EtaBW),33,-(8*PhiBW)-0.5*PhiBW,(24*PhiBW)+0.5*PhiBW);
+                // hBckrndShiftedCor[wtrk-1][wppt-1][wpPU-1]   = new TH2D(Form("hBckrndS_Cor_trk_%d_ppt_%d_PU_%d",wtrk,wppt,wpPU) ,Form("hBckrndS_trk_%d_ppt_%d_PU_%d",wtrk,wppt,wpPU) ,41,-(20*EtaBW)-(0.5*EtaBW),(20*EtaBW)+(0.5*EtaBW),33,-(8*PhiBW)-0.5*PhiBW,(24*PhiBW)+0.5*PhiBW);
+                // hSignalShiftedCor[wtrk-1][wppt-1][wpPU-1]   = new TH2D(Form("hSignalS_Cor_trk_%d_ppt_%d_PU_%d",wtrk,wppt,wpPU) ,Form("hSignalS_trk_%d_ppt_%d_PU_%d",wtrk,wppt,wpPU) ,41,-(20*EtaBW)-(0.5*EtaBW),(20*EtaBW)+(0.5*EtaBW),33,-(8*PhiBW)-0.5*PhiBW,(24*PhiBW)+0.5*PhiBW);
+                // hEPDrawCor[wtrk-1][wppt-1][wpPU-1]          = new TH2D(Form( "hEPDraw_Cor_trk_%d_ppt_%d_PU_%d",wtrk,wppt,wpPU) ,Form( "hEPDraw_trk_%d_ppt_%d_PU_%d",wtrk,wppt,wpPU) , EPD_xb   , EPD_xlo, EPD_xhi , EPD_yb      , EPD_ylo    , EPD_yhi);
+
+                hBckrndShiftedCor[wtrk-1][wppt-1][wpPU-1]   = new TH2D(Form("hBckrndS_Cor_trk_%d_ppt_%d_PU_%d",wtrk,wppt,wpPU) ,Form("hBckrndS_trk_%d_ppt_%d_PU_%d",wtrk,wppt,wpPU) ,nDEtaBins, dEtaMin, dEtaMax, 33,-(8*PhiBW)-0.5*PhiBW,(24*PhiBW)+0.5*PhiBW);
+                hSignalShiftedCor[wtrk-1][wppt-1][wpPU-1]   = new TH2D(Form("hSignalS_Cor_trk_%d_ppt_%d_PU_%d",wtrk,wppt,wpPU) ,Form("hSignalS_trk_%d_ppt_%d_PU_%d",wtrk,wppt,wpPU) ,nDEtaBins, dEtaMin, dEtaMax, 33,-(8*PhiBW)-0.5*PhiBW,(24*PhiBW)+0.5*PhiBW);
                 hEPDrawCor[wtrk-1][wppt-1][wpPU-1]          = new TH2D(Form( "hEPDraw_Cor_trk_%d_ppt_%d_PU_%d",wtrk,wppt,wpPU) ,Form( "hEPDraw_trk_%d_ppt_%d_PU_%d",wtrk,wppt,wpPU) , EPD_xb   , EPD_xlo, EPD_xhi , EPD_yb      , EPD_ylo    , EPD_yhi);
             }
         }
@@ -332,7 +339,8 @@ void MyClass::Loop(int job, std::string fList){
                     double Atrk_weight = 1.0;//(hReco2D[thisEffTable]->GetBinContent(hReco2D[thisEffTable]->FindBin( (*dau_pt)[ijet][A_trk] , (*dau_eta)[ijet][A_trk] )));
                     //double Atrk_weight = (hReco2D[thisEffTable]->GetBinContent(hReco2D[thisEffTable]->FindBin( (*dau_pt)[ijet][A_trk] , (*dau_eta)[ijet][A_trk] )));
                     
-                    if(jet_dau_eta > track_eta_lim) continue;
+                    // if(jet_dau_eta > track_eta_lim) continue;
+                    if (jet_dau_eta < 0 || jet_dau_eta >= 10) continue;
                     
                     p_jT_JetMult_cor->Fill(n_ChargeMult_DCA_labPt_Eta_exclusion_Cor,jet_dau_pt,1.0/(Atrk_weight));
 
@@ -358,7 +366,8 @@ void MyClass::Loop(int job, std::string fList){
                         double T_jet_dau_eta   = etaWRTJet((double)(*genJetPt)[ijet], (double)(*genJetEta)[ijet] +eta_smear    , (double)(*genJetPhi)[ijet] +phi_smear      , (double)(*genDau_pt)[ijet][T_trk], (double)(*genDau_eta)[ijet][T_trk], (double)(*genDau_phi)[ijet][T_trk]);
                         double T_jet_dau_phi   = phiWRTJet((double)(*genJetPt)[ijet], (double)(*genJetEta)[ijet] +eta_smear    , (double)(*genJetPhi)[ijet] +phi_smear      , (double)(*genDau_pt)[ijet][T_trk], (double)(*genDau_eta)[ijet][T_trk], (double)(*genDau_phi)[ijet][T_trk]);
 
-                        if(T_jet_dau_eta > track_eta_lim) continue;
+                        // if(T_jet_dau_eta > track_eta_lim) continue;
+                        if (T_jet_dau_eta < 0 || T_jet_dau_eta >= 10) continue;
 
                         double deltaEta = (jet_dau_eta - T_jet_dau_eta);
                         double deltaPhi = (TMath::ACos(TMath::Cos(jet_dau_phi - T_jet_dau_phi)));
